@@ -1,6 +1,6 @@
 {
-  "name": "Figma.EXE",
-  "id": "figma-exe-logic-provider",
+  "name": "RunIt",
+  "id": "runit-figma-plugin",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
