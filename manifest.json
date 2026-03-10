@@ -1,10 +1,14 @@
 {
   "name": "RunIt",
-  "id": "runit-figma-plugin",
+  "id": "1613015601249621821",
   "api": "1.0.0",
   "main": "code.js",
   "ui": "ui.html",
   "capabilities": [],
   "enableProposedApi": false,
-  "editorType": ["figma"]
+  "editorType": ["figma"],
+  "documentAccess": "dynamic-page",
+  "networkAccess": {
+    "allowedDomains": "none"
+  }
 }
