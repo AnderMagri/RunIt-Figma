@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -180,16 +184,22 @@
 <div class="status" id="status">Ready</div>
 
 <script>
-  function copyPrompt() {
+  let resetTimer = null;
+
+  async function copyPrompt() {
     const text = document.getElementById('prompt').textContent;
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    document.execCommand('copy');
-    document.body.removeChild(ta);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
 
     const btn = document.getElementById('copyBtn');
     btn.textContent = 'COPIED';
@@ -200,14 +210,20 @@
     }, 2000);
   }
 
+  function stripCodeFences(raw) {
+    const match = raw.match(/^```[\w]*\n?([\s\S]*?)```$/);
+    return match ? match[1].trim() : raw;
+  }
+
   function executeCode() {
-    const code = document.getElementById('code').value.trim();
+    const code = stripCodeFences(document.getElementById('code').value.trim());
     if (!code) return;
 
     const btn = document.getElementById('run');
     const label = document.getElementById('runLabel');
     const status = document.getElementById('status');
 
+    if (resetTimer) clearTimeout(resetTimer);
     btn.classList.add('running');
     btn.classList.remove('success');
     label.textContent = 'RUNNING...';
@@ -238,9 +254,11 @@
       status.className = 'status err';
     }
 
-    setTimeout(() => {
+    resetTimer = setTimeout(() => {
       btn.classList.remove('success');
       label.textContent = 'EXECUTE';
+      resetTimer = null;
     }, 2000);
   };
 </script>
+</html>
