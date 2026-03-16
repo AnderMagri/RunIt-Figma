@@ -118,9 +118,16 @@
   textarea::-webkit-scrollbar { width: 5px; }
   textarea::-webkit-scrollbar-thumb { background: var(--figma-color-border); border-radius: 3px; }
 
+  /* Button row */
+  .button-row {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
   /* Execute button */
   .execute-btn {
-    flex-shrink: 0;
+    flex: 1;
     background: var(--figma-color-bg-brand);
     color: var(--figma-color-text-onbrand);
     border: none;
@@ -137,6 +144,24 @@
   }
   .execute-btn:hover { opacity: 0.9; }
   .execute-btn:active { opacity: 0.8; }
+
+  /* Load file button */
+  .load-btn {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border: 1.5px solid var(--figma-color-border);
+    border-radius: 6px;
+    background: transparent;
+    color: var(--figma-color-text);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .load-btn:hover {
+    border-color: var(--figma-color-text);
+    background: var(--figma-color-bg-hover);
+  }
   .execute-btn.running {
     background: var(--figma-color-bg-warning);
     color: var(--figma-color-text-onwarning);
@@ -177,9 +202,13 @@
   <textarea id="code" placeholder="// Paste the code here..."></textarea>
 </div>
 
-<button class="execute-btn" id="run" onclick="executeCode()">
-  <span id="runLabel">EXECUTE</span>
-</button>
+<div class="button-row">
+  <button class="execute-btn" id="run" onclick="executeCode()">
+    <span id="runLabel">EXECUTE</span>
+  </button>
+  <button class="load-btn" id="load-btn">LOAD .JS</button>
+  <input type="file" id="file-input" accept=".js" style="display:none;">
+</div>
 
 <div class="status" id="status">Ready</div>
 
@@ -260,5 +289,34 @@
       resetTimer = null;
     }, 2000);
   };
+
+  // File loading
+  document.getElementById('load-btn').addEventListener('click', () => {
+    document.getElementById('file-input').click();
+  });
+
+  function loadFile(file) {
+    if (!file || !file.name.endsWith('.js')) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      document.getElementById('code').value = evt.target.result;
+      document.getElementById('status').textContent = 'File loaded: ' + file.name;
+      document.getElementById('status').className = 'status ok';
+    };
+    reader.readAsText(file);
+  }
+
+  document.getElementById('file-input').addEventListener('change', (e) => {
+    loadFile(e.target.files[0]);
+    e.target.value = '';
+  });
+
+  // Drag-and-drop
+  const textarea = document.getElementById('code');
+  textarea.addEventListener('dragover', (e) => { e.preventDefault(); });
+  textarea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    loadFile(e.dataTransfer.files[0]);
+  });
 </script>
 </html>
