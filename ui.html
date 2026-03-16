@@ -3,6 +3,12 @@
 <head>
 <meta charset="utf-8">
 <style>
+  :root {
+    --teal: #0D9488;
+    --teal-hover: #0F766E;
+    --teal-light: rgba(13, 148, 136, 0.1);
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
@@ -13,33 +19,93 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 16px;
     overflow: hidden;
   }
 
-  /* Header */
-  .header {
+  /* Top row: copy prompt + or + drop zone */
+  .top-row {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    gap: 10px;
+    align-items: stretch;
     flex-shrink: 0;
   }
-  .header h1 {
-    font-size: 13px;
+
+  /* Copy prompt column */
+  .copy-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .copy-btn {
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 11px;
     font-weight: 600;
-    color: var(--figma-color-text);
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+  }
+  .copy-btn:hover { background: var(--teal-hover); }
+  .copy-btn.copied {
+    background: var(--figma-color-bg-success);
+    color: var(--figma-color-text-onsuccess);
+  }
+  .copy-hint {
+    font-size: 9px;
+    color: var(--figma-color-text-tertiary);
+    text-align: center;
+    line-height: 1.3;
+    max-width: 110px;
+  }
+
+  /* Or divider */
+  .or-divider {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--figma-color-text-tertiary);
+    text-transform: uppercase;
     letter-spacing: 0.5px;
   }
-  .dot {
-    width: 7px; height: 7px;
-    background: var(--figma-color-bg-success);
-    border-radius: 50%;
-    animation: pulse 2s infinite;
+
+  /* Drop zone */
+  .drop-zone {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px dashed var(--figma-color-border);
+    border-radius: 6px;
+    background: var(--figma-color-bg-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    min-height: 48px;
   }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+  .drop-zone:hover {
+    border-color: var(--teal);
+    background: var(--teal-light);
   }
+  .drop-zone.drag-over {
+    border-color: var(--teal);
+    background: var(--teal-light);
+  }
+  .drop-zone-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--figma-color-text-secondary);
+    pointer-events: none;
+  }
+
+  /* Hidden prompt text */
+  #prompt { display: none; }
 
   /* Sections */
   .section {
@@ -58,45 +124,6 @@
     color: var(--figma-color-text-secondary);
   }
 
-  /* Prompt box */
-  .prompt-wrapper {
-    position: relative;
-  }
-  .prompt-box {
-    background: var(--figma-color-bg-secondary);
-    border: 1px solid var(--figma-color-border);
-    border-radius: 6px;
-    padding: 10px 12px;
-    padding-right: 60px;
-    font-size: 11px;
-    line-height: 1.5;
-    color: var(--figma-color-text-secondary);
-    max-height: 72px;
-    overflow-y: auto;
-  }
-  .prompt-box::-webkit-scrollbar { width: 4px; }
-  .prompt-box::-webkit-scrollbar-thumb { background: var(--figma-color-border); border-radius: 2px; }
-
-  .copy-btn {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: var(--figma-color-bg-brand);
-    color: var(--figma-color-text-onbrand);
-    border: none;
-    border-radius: 5px;
-    padding: 4px 10px;
-    font-size: 10px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-  .copy-btn:hover { opacity: 0.85; }
-  .copy-btn.copied {
-    background: var(--figma-color-bg-success);
-    color: var(--figma-color-text-onsuccess);
-  }
-
   /* Code area */
   textarea {
     flex: 1;
@@ -113,55 +140,30 @@
     transition: border-color 0.15s;
     min-height: 0;
   }
-  textarea:focus { border-color: var(--figma-color-border-brand); }
+  textarea:focus { border-color: var(--teal); }
   textarea::placeholder { color: var(--figma-color-text-tertiary); }
   textarea::-webkit-scrollbar { width: 5px; }
   textarea::-webkit-scrollbar-thumb { background: var(--figma-color-border); border-radius: 3px; }
 
-  /* Button row */
-  .button-row {
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
   /* Execute button */
   .execute-btn {
-    flex: 1;
-    background: var(--figma-color-bg-brand);
-    color: var(--figma-color-text-onbrand);
+    flex-shrink: 0;
+    background: var(--teal);
+    color: #fff;
     border: none;
     border-radius: 6px;
     padding: 10px;
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
-    transition: opacity 0.15s;
+    transition: background 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
   }
-  .execute-btn:hover { opacity: 0.9; }
+  .execute-btn:hover { background: var(--teal-hover); }
   .execute-btn:active { opacity: 0.8; }
-
-  /* Load file button */
-  .load-btn {
-    flex-shrink: 0;
-    padding: 10px 16px;
-    border: 1.5px solid var(--figma-color-border);
-    border-radius: 6px;
-    background: transparent;
-    color: var(--figma-color-text);
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-  .load-btn:hover {
-    border-color: var(--figma-color-text);
-    background: var(--figma-color-bg-hover);
-  }
   .execute-btn.running {
     background: var(--figma-color-bg-warning);
     color: var(--figma-color-text-onwarning);
@@ -182,33 +184,43 @@
   }
   .status.ok { color: var(--figma-color-text-success); }
   .status.err { color: var(--figma-color-text-danger); }
+
+  /* Step titles */
+  .step-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--figma-color-text-secondary);
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--figma-color-border);
+    flex-shrink: 0;
+  }
 </style>
 
-<div class="header">
-  <div class="dot"></div>
-  <h1>RunIt</h1>
+<div id="prompt">Write Figma Plugin API JavaScript. Rules: runs inside `async function(figma){...}`, no imports/require, use `await figma.loadFontAsync()` before editing text, `figma` is the only global. Return ONLY the code block. Here's what I need:</div>
+
+<div class="step-title">Step 1 &mdash; Get the code</div>
+
+<div class="top-row">
+  <div class="copy-col">
+    <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">COPY PROMPT</button>
+    <span class="copy-hint">Copy, paste in your AI, say what you need</span>
+  </div>
+  <div class="or-divider">or</div>
+  <div class="drop-zone" id="drop-zone">
+    <span class="drop-zone-label" id="drop-label">Drop .js or click to load</span>
+  </div>
+  <input type="file" id="file-input" accept=".js" style="display:none;">
 </div>
 
-<div class="section">
-  <div class="label">Prompt &mdash; copy and paste into your AI</div>
-  <div class="prompt-wrapper">
-    <div class="prompt-box" id="prompt">Write Figma Plugin API JavaScript. Rules: runs inside `async function(figma){...}`, no imports/require, use `await figma.loadFontAsync()` before editing text, `figma` is the only global. Return ONLY the code block. Here's what I need:</div>
-    <button class="copy-btn" id="copyBtn" onclick="copyPrompt()">COPY</button>
-  </div>
-</div>
+<div class="step-title">Step 2 &mdash; Paste and execute</div>
 
 <div class="section code-section">
-  <div class="label">Code &mdash; paste and execute</div>
   <textarea id="code" placeholder="// Paste the code here..."></textarea>
 </div>
 
-<div class="button-row">
-  <button class="execute-btn" id="run" onclick="executeCode()">
-    <span id="runLabel">EXECUTE</span>
-  </button>
-  <button class="load-btn" id="load-btn">LOAD .JS</button>
-  <input type="file" id="file-input" accept=".js" style="display:none;">
-</div>
+<button class="execute-btn" id="run" onclick="executeCode()">
+  <span id="runLabel">EXECUTE</span>
+</button>
 
 <div class="status" id="status">Ready</div>
 
@@ -234,7 +246,7 @@
     btn.textContent = 'COPIED';
     btn.classList.add('copied');
     setTimeout(() => {
-      btn.textContent = 'COPY';
+      btn.textContent = 'COPY PROMPT';
       btn.classList.remove('copied');
     }, 2000);
   }
@@ -291,27 +303,43 @@
   };
 
   // File loading
-  document.getElementById('load-btn').addEventListener('click', () => {
-    document.getElementById('file-input').click();
-  });
-
   function loadFile(file) {
     if (!file || !file.name.endsWith('.js')) return;
     const reader = new FileReader();
     reader.onload = (evt) => {
       document.getElementById('code').value = evt.target.result;
+      document.getElementById('drop-label').textContent = file.name;
       document.getElementById('status').textContent = 'File loaded: ' + file.name;
       document.getElementById('status').className = 'status ok';
     };
     reader.readAsText(file);
   }
 
-  document.getElementById('file-input').addEventListener('change', (e) => {
+  const dropZone = document.getElementById('drop-zone');
+  const fileInput = document.getElementById('file-input');
+
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (e) => {
     loadFile(e.target.files[0]);
     e.target.value = '';
   });
 
-  // Drag-and-drop
+  // Drag-and-drop on drop zone
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('drag-over');
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    loadFile(e.dataTransfer.files[0]);
+  });
+
+  // Also allow drop on textarea
   const textarea = document.getElementById('code');
   textarea.addEventListener('dragover', (e) => { e.preventDefault(); });
   textarea.addEventListener('drop', (e) => {
